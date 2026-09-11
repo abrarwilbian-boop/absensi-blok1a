@@ -429,18 +429,42 @@
             const btn = document.getElementById('submitAbsenBtn');
             const infoBox = document.getElementById('infoKategoriBox');
             const displayKat = document.getElementById('displayKategoriUser');
+            
+            const nama = sessionStorage.getItem('currentUser');
+            let records = JSON.parse(localStorage.getItem('absenRecords'));
+            // Cek apakah user sudah absen di sesi ini
+            const hasAbsen = records.find(r => r.nama === nama && r.kategori === currentKat);
 
             if (isOpen) {
-                statusDiv.className = 'status-badge open';
-                statusDiv.innerText = 'Sesi Buka: Silakan Mengisi';
-                infoBox.style.display = 'block';
-                displayKat.innerText = currentKat;
-                btn.disabled = false;
+                if (hasAbsen) {
+                    // Jika sudah absen, kunci tombol dan ubah status
+                    statusDiv.className = 'status-badge closed';
+                    statusDiv.style.backgroundColor = '#6c757d'; // Warna abu-abu
+                    statusDiv.innerText = 'Anda sudah mengisi absen sesi ini.';
+                    infoBox.style.display = 'block';
+                    displayKat.innerText = currentKat;
+                    btn.disabled = true;
+                    btn.innerText = 'Terkirim';
+                    btn.style.backgroundColor = '#ccc';
+                    btn.style.cursor = 'not-allowed';
+                } else {
+                    // Jika belum absen dan sesi buka
+                    statusDiv.className = 'status-badge open';
+                    statusDiv.innerText = 'Sesi Buka: Silakan Mengisi';
+                    infoBox.style.display = 'block';
+                    displayKat.innerText = currentKat;
+                    btn.disabled = false;
+                    btn.innerText = 'Kirim Absensi';
+                    btn.style.backgroundColor = 'var(--primary-blue)';
+                    btn.style.cursor = 'pointer';
+                }
             } else {
                 statusDiv.className = 'status-badge closed';
                 statusDiv.innerText = 'Sesi Ditutup Admin';
                 infoBox.style.display = 'none';
                 btn.disabled = true;
+                btn.innerText = 'Kirim Absensi';
+                btn.style.backgroundColor = 'var(--primary-blue)';
             }
         }
 
@@ -461,7 +485,7 @@
             localStorage.setItem('absenRecords', JSON.stringify(records));
             
             alert(`Berhasil! Kehadiran ${nama} untuk ${kategori} tersimpan.`);
-            updateUserUI();
+            updateUserUI(); // Panggil ini untuk me-refresh tampilan tombol langsung
         }
 
         checkSession();
